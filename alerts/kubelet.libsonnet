@@ -72,7 +72,7 @@
           {
             alert: 'KubeNodeReadinessFlapping',
             expr: |||
-              sum(changes(kube_node_status_condition{status="true",condition="Ready"}[15m])) by (%(clusterLabel)s, node) > 2
+              sum(changes(kube_node_status_condition{%(kubeStateMetricsSelector)s,status="true",condition="Ready"}[15m])) by (%(clusterLabel)s, node) > 2
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -86,7 +86,7 @@
           {
             alert: 'KubeletPlegDurationHigh',
             expr: |||
-              node_quantile:kubelet_pleg_relist_duration_seconds:histogram_quantile{quantile="0.99"} >= 10
+              node_quantile:kubelet_pleg_relist_duration_seconds:histogram_quantile{%(kubeletSelector)s,quantile="0.99"} >= 10
             ||| % $._config,
             'for': '5m',
             labels: {
@@ -114,7 +114,7 @@
           {
             alert: 'KubeletClientCertificateExpiration',
             expr: |||
-              kubelet_certificate_manager_client_ttl_seconds < %(kubeletCertExpirationWarningSeconds)s
+              kubelet_certificate_manager_client_ttl_seconds{%(kubeletSelector)s} < %(kubeletCertExpirationWarningSeconds)s
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -127,7 +127,7 @@
           {
             alert: 'KubeletClientCertificateExpiration',
             expr: |||
-              kubelet_certificate_manager_client_ttl_seconds < %(kubeletCertExpirationCriticalSeconds)s
+              kubelet_certificate_manager_client_ttl_seconds{%(kubeletSelector)s} < %(kubeletCertExpirationCriticalSeconds)s
             ||| % $._config,
             labels: {
               severity: 'critical',
@@ -140,7 +140,7 @@
           {
             alert: 'KubeletServerCertificateExpiration',
             expr: |||
-              kubelet_certificate_manager_server_ttl_seconds < %(kubeletCertExpirationWarningSeconds)s
+              kubelet_certificate_manager_server_ttl_seconds{%(kubeletSelector)s} < %(kubeletCertExpirationWarningSeconds)s
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -153,7 +153,7 @@
           {
             alert: 'KubeletServerCertificateExpiration',
             expr: |||
-              kubelet_certificate_manager_server_ttl_seconds < %(kubeletCertExpirationCriticalSeconds)s
+              kubelet_certificate_manager_server_ttl_seconds{%(kubeletSelector)s} < %(kubeletCertExpirationCriticalSeconds)s
             ||| % $._config,
             labels: {
               severity: 'critical',
@@ -166,7 +166,7 @@
           {
             alert: 'KubeletClientCertificateRenewalErrors',
             expr: |||
-              increase(kubelet_certificate_manager_client_expiration_renew_errors[5m]) > 0
+              increase(kubelet_certificate_manager_client_expiration_renew_errors{%(kubeletSelector)s}[5m]) > 0
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -180,7 +180,7 @@
           {
             alert: 'KubeletServerCertificateRenewalErrors',
             expr: |||
-              increase(kubelet_server_expiration_renew_errors[5m]) > 0
+              increase(kubelet_server_expiration_renew_errors{%(kubeletSelector)s}[5m]) > 0
             ||| % $._config,
             labels: {
               severity: 'warning',
